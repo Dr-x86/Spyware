@@ -3,8 +3,8 @@ import threading
 import time
 import requests
 
-TOKEN = "7705089492:AAFNPZ2jufblj91y4Q_XsB4KGKf_Q6sL_UE"
-CHAT_ID = "6814112276"
+TOKEN = "TOKEN"
+CHAT_ID = "CHAT"
 
 intervalo_minutos = 15
 capturando = False
